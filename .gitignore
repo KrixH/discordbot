@@ -1,0 +1,28 @@
+# Környezeti változók (érzékeny adatok)
+.env
+
+# Node.js modulok
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Operációs rendszer specifikus fájlok
+.DS_Store
+Thumbs.db
+
+# Logok és ideiglenes fájlok
+*.log
+*.tmp
+
+# IDE/Editor beállítások
+.vscode/
+.idea/
+*.swp
+
+# Kompájlált fájlok
+dist/
+build/
+
+# Git ignorált fájlok tartalmának visszaállítása
+!.gitignore
