@@ -3,7 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
-// Parancsok betöltése
+// Command loading
 const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -17,22 +17,43 @@ for (const file of commandFiles) {
 
 const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
+// Deployment strategy configuration
+const DEPLOYMENT_MODE = process.env.DEPLOYMENT_MODE || 'guild'; // 'guild' or 'global'
+const GUILD_IDS = process.env.GUILD_IDS ? 
+    process.env.GUILD_IDS.split(',').map(id => id.trim()).filter(id => id) : 
+    [];
+
 (async () => {
-    const guildIds = process.env.GUILD_IDS.split(',').map(id => id.trim());
-
     try {
-        for (const guildId of guildIds) {
-            console.log(`Parancsok frissítése a szerveren: ${guildId}...`);
+        console.log(`Starting ${commands.length} command(s) deployment in ${DEPLOYMENT_MODE} mode...`);
 
-            // Parancsok regisztrálása az adott szerverhez
+        if (DEPLOYMENT_MODE === 'guild') {
+            if (GUILD_IDS.length === 0) {
+                throw new Error('GUILD_IDS is required for guild-specific deployment');
+            }
+
+            // Deploy to each guild
+            for (const guildId of GUILD_IDS) {
+                console.log(`Deploying commands to guild: ${guildId}`);
+                await rest.put(
+                    Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
+                    { body: commands }
+                );
+                console.log(`Successfully deployed commands to guild: ${guildId}`);
+            }
+        } else {
+            // Global deployment
+            console.log('Deploying commands globally (this may take up to an hour to propagate)');
             await rest.put(
-                Routes.applicationGuildCommands(process.env.CLIENT_ID, guildId),
+                Routes.applicationCommands(process.env.CLIENT_ID),
                 { body: commands }
             );
-
-            console.log(`Parancsok sikeresen frissítve ezen a szerveren: ${guildId}`);
+            console.log('Successfully deployed commands globally');
         }
+
+        console.log('Command deployment completed successfully');
     } catch (error) {
-        console.error('Hiba történt a parancsok frissítésekor:', error);
+        console.error('Command deployment failed:', error);
+        process.exit(1);
     }
 })();

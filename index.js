@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -38,6 +39,9 @@ for (const file of eventFiles) {
         client.on(eventName, (...args) => event.execute(...args, client));
     }
 }
+
+// Initialize member count tracker
+require('./events/updateMemberCount')(client);
 
 // Bot bejelentkezése
 client.login(process.env.DISCORD_TOKEN);

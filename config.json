@@ -1,6 +1,10 @@
 {
     "prefix": "?",
     "welcomeChannel": "welcome",
-    "defaultActivity": "Fejlesztés alatt"
-  }
-  
+    "xpConfig": {
+        "cooldown": 60,
+        "baseXP": 10,
+        "maxXP": 25,
+        "levelFormula": "level^2 * 100"
+    }
+}
